@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Build-Jdk-Spec: 17
+Class-Path: lib/pekko-http_2.13-1.0.1.jar lib/scala-library-2.13.12.jar 
+ lib/pekko-http-core_2.13-1.0.1.jar lib/pekko-parsing_2.13-1.0.1.jar lib
+ /parboiled_2.13-2.5.0.jar lib/pekko-actor-typed_2.13-1.0.2.jar lib/pekk
+ o-actor_2.13-1.0.2.jar lib/config-1.4.3.jar lib/slf4j-api-1.7.36.jar li
+ b/pekko-stream_2.13-1.0.2.jar lib/pekko-protobuf-v3_2.13-1.0.2.jar lib/
+ reactive-streams-1.0.4.jar lib/ssl-config-core_2.13-0.6.1.jar lib/pekko
+ -http-jackson_2.13-1.0.1.jar lib/jackson-databind-2.14.3.jar lib/jackso
+ n-annotations-2.14.3.jar lib/jackson-core-2.14.3.jar lib/bcprov-jdk18on
+ -1.78.1.jar lib/bcpkix-jdk18on-1.78.1.jar lib/bcutil-jdk18on-1.78.1.jar
+  lib/pekko-slf4j_2.13-1.0.2.jar lib/logback-classic-1.2.13.jar lib/logb
+ ack-core-1.2.13.jar
+Main-Class: server.PapayaServer
+Created-By: Maven Integration for Eclipse
+

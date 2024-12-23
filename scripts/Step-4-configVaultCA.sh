@@ -73,7 +73,7 @@ kubectl exec -it -n vault vault-0 -- vault token capabilities $ADMIN_TOKEN sys/a
 #    On Root parameters - 
 #      Type - select internal
 #      Common name - example.com
-#      Issuer name - root-2024
+#      Issuer name - root-2025
 #      Not valid after - TTL 87600 hours
 #      Within the Issuer URLs
 #        Issuing certificates    - https://localhost:8200/v1/pki/ca
@@ -83,12 +83,12 @@ kubectl exec -it -n vault vault-0 -- vault token capabilities $ADMIN_TOKEN sys/a
 #
 #    The View Root Certificate Screen appears. Next to the Certificate Pem Format
 #      Select the Copy icon to copy the cert to the clipboard.
-#      Save the copied cert as root_2024_ca.crt ( In $WORKDIR/crypto is a good place )
+#      Save the copied cert as root_2025_ca.crt ( In $WORKDIR/crypto is a good place )
 #
 #    Return to the Dashboard screen
 #
 #    Add a Role for the root CA - Select pki -> Roles (The Tab) -> Create Role
-#      Role Name - 2024-servers
+#      Role Name - 2025-servers
 #      Select Create
 # 
 #    Note you can verify and review the cert information with 
@@ -112,7 +112,7 @@ kubectl exec -it -n vault vault-0 -- vault token capabilities $ADMIN_TOKEN sys/a
 #
 #    Now we need to sign the CSR with the Root CA.
 #    Return to Dashboard - select pki Secrets engine -> Select Issuers tab
-#    Select root-2024 issuer
+#    Select root-2025 issuer
 #    Select Sign Intermediate tab
 #      Paste Pem CSR into CSR field
 #      Common name - example.com
@@ -130,6 +130,8 @@ kubectl exec -it -n vault vault-0 -- vault token capabilities $ADMIN_TOKEN sys/a
 #    Select Done
 #
 # Step 3. Create a Role
+#    Either select the Issuers Tab from the pki_int secrets and note the issuer marked as
+#       intermediate (or)
 #    Using a terminal obtain the issuer id:
 #      kubectl exec -it -n vault vault-0 -- vault read -field=default pki_int/config/issuers
 #    Copy the id output
@@ -151,128 +153,6 @@ kubectl exec -it -n vault vault-0 -- vault token capabilities $ADMIN_TOKEN sys/a
 #       Common name - test.example.com
 #       Under Not Valid after - set TTL 24 hours
 #       Select Generate
-
-# Go to last section of this doc - Request Certificates from Intermediate CA
-
-####################################################################################
-# ****************** Note - These steps below are a duplicate of the UI Steps ******
-# As such if you performed the UI steps DO NOT do these steps.
-
-# Beware Note - Although the steps successfully perform, in the end certificate
-#               generation encounters errors when following these steps. TBD
-
-#Enable pki engine
-kubectl exec -it -n vault vault-0 -- vault secrets enable pki
-
-#Tune cert TTL to 1 year
-kubectl exec -it -n vault vault-0 -- vault secrets tune -max-lease-ttl=8760h pki
-
-#Generate root CA cert 
-#kubectl exec -it -n vault vault-0 -- vault write -field=certificate pki/root/generate/internal \
-#     common_name="example.com" \
-#     issuer_name="root-2024" \
-#     ttl=8760h > ${WORKDIR}/root_2024_ca.crt
-# Without the -field=certificate
-kubectl exec -it -n vault vault-0 -- vault write pki/root/generate/internal \
-     common_name="example.com" \
-     issuer_name="root-2024" \
-     ttl=8760h > ${WORKDIR}/root_2024_ca.crt
-     
-# Configure the certficate issuing and revocation list endpoints.
-kubectl exec -it -n vault vault-0 -- vault write pki/config/urls \
-    issuing_certificates="http://vault.vault:8200/v1/pki/ca" \
-    crl_distribution_points="http://vault.vault:8200/v1/pki/crl"          
-
-#List the issuer info for the root CA
-kubectl exec -it -n vault vault-0 -- vault list pki/issuers/
-
-
-##########################################################################
-#Switching to modified curl api calls as the vault cli with or without kubectl throws
-# tls: failed to verify certificate: x509: certificate signed by unknown authority
-# for some of the command steps
-
-#Step 5 - List the issuer metadata and usage info
-#kubectl exec -it -n vault vault-0 -- vault read pki/issuers/$(vault list -format=json pki/issuers/ | jq -r '.[]') tail -n 6
-curl --cacert $WORKDIR/vault.ca \
-     --silent \
-     --header "X-Vault-Request: true" \
-     --header "X-Vault-Token: $(vault print token)" \
-     https://127.0.0.1:8200/v1/pki/issuers\?list=true \
-     | jq
-    
-#Step 6 - Create a role for the issuer
-# **** Important - 2 values need to be provided 
-#          1.) the ADMIN_TOKEN - try echo $ADMIN_TOKEN, if this does not work try
-#              ADMIN_TOKEN=$(kubectl exec -it -n vault vault-0 -- vault token create -format=json -policy="admin" | jq -r ".auth.client_token")
-#          2.) the "keys" value from the prior Step 5 output needs to be copied to the 
-#              keys value within the command below.
-#kubectl exec -it -n vault vault-0 -- vault write pki/roles/2024-servers allow_any_name=true
-curl --cacert $WORKDIR/vault.ca \
-     --silent \
-     --header "X-Vault-Token: <ADMIN_TOKEN>" \
-     --header "X-Vault-Request: true" \
-     https://127.0.0.1:8200/v1/pki/issuer/<keys value> \
-     | jq
-
-#Step 7 - Configure CA and CRL URLs
-kubectl exec -it -n vault vault-0 -- vault write pki/config/urls \
-     issuing_certificates="https://127.0.0.1:8200/v1/pki/ca" \
-     crl_distribution_points="https://127.0.0.1:8200/v1/pki/crl"
-     
-################# Now Generate an intermediate cert
-
-#Enable pki at the pki_int path
-kubectl exec -it -n vault vault-0 -- vault secrets enable -path=pki_int pki
-
-#Tune TTL for certs
-kubectl exec -it -n vault vault-0 -- vault secrets tune -max-lease-ttl=43800h pki_int
-
-#Use the pki issue command to manage intermediate cert generation workflow.
-#IMPORTANT - Copy in the issuer key id
-kubectl exec -it -n vault vault-0 -- vault pki issue \
-      --issuer_name=example-dot-com-intermediate \
-      /pki/issuer/<key id> \
-      /pki_int/ \
-      common_name="example.com Intermediate Authority" \
-      o="example" \
-      ou="education" \
-      key_type="rsa" \
-      key_bits="4096" \
-      max_depth_len=1 \
-      permitted_dns_domains="test.example.com" \
-      ttl="43800h"
-# Command with substituted issuer key id
-kubectl exec -it -n vault vault-0 -- vault pki issue \
-      --issuer_name=example-dot-com-intermediate \
-      /pki/issuer/4a02cd8f-89cb-3a8e-4b87-483bc1775424 \
-      /pki_int/ \
-      common_name="example.com Intermediate Authority" \
-      o="example" \
-      ou="education" \
-      key_type="rsa" \
-      key_bits="4096" \
-      max_depth_len=1 \
-      permitted_dns_domains="test.example.com" \
-      ttl="43800h"
-
-#Create a role
-DEFAULT_ISSUER=$(kubectl exec -it -n vault vault-0 -- vault read -field=default pki_int/config/issuers)
-echo $DEFAULT_ISSUER
-kubectl exec -it -n vault vault-0 -- vault write pki_int/roles/example-dot-com \
-     issuer_ref="${DEFAULT_ISSUER}" \
-     allowed_domains="example.com" \
-     allow_subdomains=true \
-     max_ttl="720h"
- 
-####################################################################################
-########## End duplicate Steps with the Vault UI steps #############################
- 
-
-####################################################################################
-########### Note - These steps in requesting a new Cert work if you performed
-# the setup with the UI.They generate errors when the steps with kubectl above are
-# performed.
 
 ################################################################################
 # Request Certificates from Intermediate CA

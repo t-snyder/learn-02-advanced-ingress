@@ -3,8 +3,8 @@
 # Load image to minikube when built
 eval $(minikube docker-env)
 
-WORKDIR=/media/tim/ExtraDrive1/Projects/learn-hashicorp-vault/vault-tls
-PAPAYA_DIR=/media/tim/ExtraDrive1/Projects/ingress-test/papaya
+WORKDIR=/media/tim/ExtraDrive1/Projects/learn-02-advanced-ingress
+PAPAYA_DIR=/media/tim/ExtraDrive1/Projects/learn-02-advanced-ingress/papaya
 
 cd $WORKDIR/docker
 

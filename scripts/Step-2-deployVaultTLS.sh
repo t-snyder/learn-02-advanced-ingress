@@ -6,7 +6,7 @@
 export SERVICE_NAME=vault-internal
 export NAMESPACE=vault
 export SECRET_NAME=vault-tls
-export WORKDIR=/media/tim/ExtraDrive1/Projects/learn-hashicorp-vault/vault-tls
+export WORKDIR=/media/tim/ExtraDrive1/Projects/learn-02-advanced-ingress
 export CSR_NAME=vault.svc
 export VAULT_HELM_RELEASE_NAME="vault"
 export K8S_CLUSTER_NAME="cluster.local"

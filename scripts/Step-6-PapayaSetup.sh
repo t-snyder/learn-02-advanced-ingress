@@ -34,7 +34,7 @@ https://127.0.0.1:8200/ui
 #
 #    Now we need to sign the CSR with the Root CA.
 #    Return to Dashboard - select pki Secrets engine -> Select Issuers tab
-#    Select root-2024 issuer
+#    Select root-2025 issuer
 #    Select Sign Intermediate tab
 #      Paste Pem CSR into CSR field
 #      Common name -foo.com
@@ -74,8 +74,13 @@ https://127.0.0.1:8200/ui
 #       Under Not Valid after - set TTL 24 hours
 #       Select Generate
 
+# Should already be set if still using the same terminal
+WORKDIR=/media/tim/ExtraDrive1/Projects/learn-02-advanced-ingress
+
+# We need to build the papaya docker file.
+/bin/bash $WORKDIR/scripts/buildDockerImage.sh
+
 # Create Papaya issuer role and binding
-WORKDIR=/media/tim/ExtraDrive1/Projects/learn-hashicorp-vault/vault-tls
 kubectl create namespace papaya
 
 kubectl apply -n papaya -f $WORKDIR/kube/papaya-issuer-role.yaml

@@ -7,10 +7,7 @@ cat ${WORKDIR}/policy/certPolicy.hcl | kubectl exec -i -n vault vault-0 -- vault
 CERT_TOKEN=$(kubectl exec -it -n vault vault-0 -- vault token create -format=json -policy="cert" | jq -r ".auth.client_token")
 echo $CERT_TOKEN
 
-# Start a shell into vault-0
-kubectl exec -it vault-0 -n vault --stdin=true --tty=true -- /bin/sh
-
-# Enable kubernetes authentication
+echo # Enable kubernetes authentication
 kubectl exec -it vault-0 -n vault -- vault auth enable kubernetes
 
 # Configure the location of the Kubernetes API
@@ -22,8 +19,6 @@ kubectl exec -it vault-0 -n vault -- vault write auth/kubernetes/role/issuer \
     bound_service_account_namespaces=vault \
     policies=cert \
     ttl=20m
-
-exit
 
 # Deploy cert-manager
 /bin/bash ${WORKDIR}/scripts/deployCertManager.sh
