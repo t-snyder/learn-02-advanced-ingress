@@ -37,17 +37,18 @@ particular OS.
 
 ## Dependencies Deployed within the Prototype Scripts
 
-| Deployed Name | Version         |
-| Cert-manager  | 1.15.3          |
-| Ingress-nginx | 1.11.2          |
-| Hashicorp Vault | 1.17.3        |
-| Apache Pekko-http | 1.1.0         |
+| Deployed Name | Version    |
+| ------------- | ---------- |
+| Cert-manager  | 1.15.3     |
+| Ingress-nginx | 1.11.2     |
+| Hashicorp Vault | 1.17.3   |
+| Apache Pekko-http | 1.1.0  |
 
 ## Deployment Files
 The prototype deployment has been separated into various shell script files based upon the core functions being
 deployed.<br> 
 **Note -**<br> 
- *The commands within the deployKube.sh are meant to be copy pasted into a terminal and not run as a bash script.*
+ *The commands within the shell files below are meant to be copy pasted (one or a few lines at a time) into a terminal, and not run as a bash script.*
 
 
 ### Step-1-startMinikube.sh
