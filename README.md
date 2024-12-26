@@ -47,8 +47,8 @@ particular OS.
 ## Deployment Files
 The prototype deployment has been separated into various shell script files based upon the core functions being
 deployed.<br> 
-**Note -**<br> 
- *The commands within the shell files below are meant to be copy pasted (one or a few lines at a time) into a terminal, and not run as a bash script.*
+**Note -** *The commands within the shell files below are meant to be copy pasted (one or a few lines at a time) into a terminal,
+and not run as an automated bash script.*
 
 
 ### Step-1-startMinikube.sh
