@@ -44,7 +44,11 @@ particular OS.
 | Apache Pekko-http | 1.1.0         |
 
 ## Deployment Files
-The prototype deployment has been separated into various shell script files based upon the core functions being deployed.
+The prototype deployment has been separated into various shell script files based upon the core functions being
+deployed.<br> 
+**Note -**<br> 
+ *The commands within the deployKube.sh are meant to be copy pasted into a terminal and not run as a bash script.*
+
 
 ### Step-1-startMinikube.sh
 Deploy a clean minikube and addons - dashboard and ingress.
